@@ -1,0 +1,90 @@
+---
+title: "simulate_salinity"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{simulate_salinity}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(deltasalinity)
+```
+
+## The model
+
+The salinity model is written as the time derivative of salinity concentration, $C$ [ppm]:
+
+$$\frac{dC}{dt}=-aQ_HC+be^{-dQ_H}(C_D-C)$$
+where $C_D$ = 35 ppt is downstream (ocean) salinity and parameters $a$, $b$, and $d$ are calibration constants, and $Q_H$ is upstream flow, in this case flow at Hardinge Bridge. The two terms on the right-hand side of the equation represent discharge  and first order exchange, respectively. The exchange term $be^{-dQ_H}$ decreases (or increases) with higher (or lower) streamflow as the channel becomes dominated by inflow (or tidal oscillations).
+
+## The R function for salinity modeling
+
+The necessary functions are in `salinity_model_functions.R`. The salinity model is contained within the function `sim_salin`, which requires the following paramers:
+
+* `Q_ts`: Daily streamflow timeseries
+* `v`: The log of parameter variables for the model in a vector: `v = c(log(a), log(b), log(d), log(C_d))`. Note that they are written as log values for convenience in calibration (which ensures they are positive). The parameters are therefore calculated as
+    + `a = exp(v[1])`
+    + `b = exp(v[2])`
+    + `d = exp(v[3])`
+    + `C_d = exp(v[4])`
+* `salin_min`: Minimum channel salinity
+
+The function is called for a single timeseries as: `sim_salin(Q_ts,v,salin_min=100)`.
+
+## Simulating salinity over multiple years
+
+The `sim_salin` function is fairly straightforward, but in practice it can be tricky to implement. Thi spackage also includes a wrapper function `sim_salin_annual` which runs `sim_salin` for each year. The `sim_salin_annual` function simulates each year separately, so that $C$ is always initialized as 100 ppm on January 1.
+
+## Running the model
+
+The following code will to load built-in data containing streamflow timeseries and calibrated parameters:
+
+* `ganges_salinity` includes mean daily streamflow at Hardinge bridge since the treaty was signed, as well as synthetic salinity in 2006, generated under the counterfactual scenario that the treaty had not been signed (see [Penny et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2019WR026166))
+* `calibrated_params` contains parameters for the model, calibrated to observed salinity at Khulna station in the Ganges delta for available data since 1990 (again, see [Penny et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2019WR026166)).
+
+```{r run,message=FALSE,warning=FALSE}
+# Load libraries: the functions require dplyr, tidyr, and deSolve. read_csv requires readr
+library(dplyr)
+library(tidyr)
+library(ggplot2) # loads dplyr, tidyr, and readr
+library(deSolve)
+
+# Load the data
+v <- calibrated_parameters
+print(v)
+
+streamflow_df <- ganges_streamflow
+print(streamflow_df)
+
+# Simulate salinity annually
+salinity_results <- sim_salin_annual(streamflow_df, v$param)
+```
+
+The tabulated results are (`print(results)`):
+```{r}
+salinity_results
+```
+
+
+The results plotted:
+```{r fig.width = 6, fig.height = 4}
+# Combine results with streamflow data frame for plotting
+results_df <- streamflow_df %>%
+  dplyr::left_join(salinity_results[,c("date","S_ppm")],by = "date")
+
+# Plot the results
+p_results <- ggplot(results_df %>% gather(var,val,Q_cumec,S_ppm)) + 
+  geom_line(aes(yday,val, color = group)) +
+  facet_wrap(~var,ncol=1,scales="free") +
+  theme(legend.position = c(0.8,0.9))
+print(p_results)
+```
+```
