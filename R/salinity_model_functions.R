@@ -59,10 +59,11 @@ sim_salin_annual <- function(Q_df,v) {
 #' Simulate salinity for a timeseries of streamflow
 #' @param Q_ts Timeseries of daily streamflow values
 #' @param v Vector of length 4 containing log parameter values: \code{log(a), log(b), log(d), and log(C_d)}
-#' @param salin_min Initial (and minimum) value of salinity
-sim_salin=function(Q_ts,v,salin_min=100){
+#' @param salin_init Initial salinity for simulation
+#' @param salin_min Minimum value of salinity
+sim_salin=function(Q_ts, v, salin_init = 100, salin_min=100) {
   #Initialize #exp to be positive
-  Cobs_init <- salin_min
+  Cobs_init <- salin_init
   parms=c(a=exp(v[1]),
           b=exp(v[2]),
           d=exp(v[3]),
