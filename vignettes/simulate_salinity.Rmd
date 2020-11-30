@@ -1,5 +1,5 @@
 ---
-title: "simulate_salinity"
+title: "A advection + first-order exchange model of channel salinity"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{simulate_salinity}
@@ -22,8 +22,8 @@ library(deltasalinity)
 
 The salinity model is written as the time derivative of salinity concentration, $C$ [ppm]:
 
-$$\frac{dC}{dt}=-aQ_HC+be^{-dQ_H}(C_D-C)$$
-where $C_D$ = 35 ppt is downstream (ocean) salinity and parameters $a$, $b$, and $d$ are calibration constants, and $Q_H$ is upstream flow, in this case flow at Hardinge Bridge. The two terms on the right-hand side of the equation represent discharge  and first order exchange, respectively. The exchange term $be^{-dQ_H}$ decreases (or increases) with higher (or lower) streamflow as the channel becomes dominated by inflow (or tidal oscillations).
+$$\frac{dC}{dt}=-aQ_H (C-C_U)+be^{-dQ_H}(C_D-C)$$
+where $C_U$ is (small) upstream salinity, $C_D$ = 35 ppt is downstream (ocean) salinity and parameters $a$, $b$, and $d$ are calibration constants, and $Q_H$ is upstream flow, in this case flow at Hardinge Bridge. The two terms on the right-hand side of the equation represent advection and first order exchange, respectively. The exchange term $be^{-dQ_H}$ decreases (or increases) with higher (or lower) streamflow as the channel becomes dominated by inflow (or tidal oscillations). Please note that this model assumes well mixed channels within the delta. Of course this is not a realistic assumption and there will likely be nonlinear salinity gradients moving downstream. The nonlinearity of the model may account for this when appropriately calibrated, but make sure to test the model to ensure it sufficiently approximates salinity at the location(s) of interest. 
 
 ## The R function for salinity modeling
 
