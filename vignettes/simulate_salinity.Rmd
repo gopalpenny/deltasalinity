@@ -25,9 +25,9 @@ The salinity model is written as the time derivative of salinity concentration, 
 $$\frac{dC}{dt}=-aQ_H (C-C_U)+be^{-dQ_H}(C_D-C)$$
 where $C_U$ is (small) upstream salinity, $C_D$ = 35 ppt is downstream (ocean) salinity and parameters $a$, $b$, and $d$ are calibration constants, and $Q_H$ is upstream flow, in this case flow at Hardinge Bridge. The two terms on the right-hand side of the equation represent advection and first order exchange, respectively. The exchange term $be^{-dQ_H}$ decreases (or increases) with higher (or lower) streamflow as the channel becomes dominated by inflow (or tidal oscillations). Please note that this model assumes well mixed channels within the delta. Of course this is not a realistic assumption and there will likely be nonlinear salinity gradients moving downstream. The nonlinearity of the model may account for this when appropriately calibrated, but make sure to test the model to ensure it sufficiently approximates salinity at the location(s) of interest. 
 
-## The R function for salinity modeling
+## The salinity modeling function
 
-The necessary functions are in `salinity_model_functions.R`. The salinity model is contained within the function `sim_salin`, which requires the following paramers:
+The salinity model is contained within the function `sim_salin`, which requires the following paramers:
 
 * `Q_ts`: Daily streamflow timeseries
 * `v`: The log of parameter variables for the model in a vector: `v = c(log(a), log(b), log(d), log(C_d))`. Note that they are written as log values for convenience in calibration (which ensures they are positive). The parameters are therefore calculated as
@@ -45,10 +45,12 @@ The `sim_salin` function is fairly straightforward, but in practice it can be tr
 
 ## Running the model
 
-The following code will to load built-in data containing streamflow timeseries and calibrated parameters:
+The following built in data contain streamflow timeseries and calibrated parameters:
 
 * `ganges_salinity` includes mean daily streamflow at Hardinge bridge since the treaty was signed, as well as synthetic salinity in 2006, generated under the counterfactual scenario that the treaty had not been signed (see [Penny et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2019WR026166))
 * `ganges_params` contains parameters for the model, calibrated to observed salinity at Khulna station in the Ganges delta for available data since 1990 (again, see [Penny et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2019WR026166)).
+
+Below, these data are loaded and used to simulate salinity.
 
 ```{r run,message=FALSE,warning=FALSE}
 # Load libraries: the functions require dplyr, tidyr, and deSolve. read_csv requires readr
@@ -73,8 +75,8 @@ The tabulated results are (`print(results)`):
 salinity_results
 ```
 
-
 The results plotted:
+
 ```{r fig.width = 6, fig.height = 4}
 # Combine results with streamflow data frame for plotting
 results_df <- streamflow_df %>%
@@ -87,4 +89,8 @@ p_results <- ggplot(results_df %>% gather(var,val,Q_cumec,S_ppm)) +
   theme(legend.position = c(0.2,0.9),legend.title = element_blank())
 print(p_results)
 ```
-```
+
+## Model calibration
+
+The model can also be calibrated using functions in this package. See `?calibrate_salinity_model` for more details.
+
