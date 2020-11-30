@@ -47,6 +47,12 @@ sim_salin_prep <- function(Q_ts=NULL,pred_dates=NULL,Q_obs_df=NULL,salin_min=100
 #'
 #' @param Q_df A \code{data.frame} containing \code{Q_cumec} and \code{year} columns
 #' @param v Vector of length 4 containing log parameter values: \code{log(a), log(b), log(d), and log(C_d)}
+#' @examples
+#' library(ggplot2)
+#' salinity_results <- sim_salin_annual(ganges_streamflow, calibrated_parameters$param)
+#' salinity_results_joined <- ganges_streamflow %>%
+#'   left_join(salinity_results[,c("date","S_ppm")], by = "date")
+#' ggplot(salinity_results_joined) + geom_line(aes(yday,S_ppm, color = group))
 sim_salin_annual <- function(Q_df,v) {
   S_synth_df <- do.call(c,lapply(split(Q_df$Q_cumec,Q_df$year),
                               sim_salin,v=v))
@@ -61,6 +67,11 @@ sim_salin_annual <- function(Q_df,v) {
 #' @param v Vector of length 4 containing log parameter values: \code{log(a), log(b), log(d), and log(C_d)}
 #' @param salin_init Initial salinity for simulation
 #' @param salin_min Minimum value of salinity
+#' @examples
+#' streamflow_df <- ganges_streamflow[ganges_streamflow$date < "2000-01-01",]
+#' # Output salinity in ppm
+#' streamflow_df$S_ppm <- sim_salin(streamflow_df$Q_cumec, ganges_params$param)
+#' head(streamflow_df)
 sim_salin=function(Q_ts, v, salin_init = 100, salin_min=100) {
   #Initialize #exp to be positive
   Cobs_init <- salin_init
