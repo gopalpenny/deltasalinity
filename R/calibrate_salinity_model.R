@@ -122,10 +122,10 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=TRUE) {
 #' v <- ganges_params$param
 #' v[1] <- NA
 #' v_calibrated <- calibrate_salinity_model(hydro_data, v) # warning expected for Nelder-Mead
-#' }
 #'
 #' # Check the percent difference
 #' (v_calibrated$v - ganges_params$param) / ganges_params$param * 100
+#' }
 #'
 #' # Calibrate parameters "b" and "d"
 #' v <- ganges_params$param
