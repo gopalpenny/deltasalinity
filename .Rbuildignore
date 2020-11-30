@@ -1,4 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
-^\./ignore$
+^ignore$
+^LICENSE\.md$
+^\.travis\.yml$
