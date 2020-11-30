@@ -14,6 +14,13 @@ Depends:
 Suggests: 
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    dplyr,
+    ggplot2,
+    tidyr,
+    tibble,
+    deSolve
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
+Imports: 
+    magrittr
