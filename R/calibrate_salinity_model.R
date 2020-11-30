@@ -2,18 +2,24 @@
 #' @param v logged parameter as a vector: log(a), log(b), log(d), log(C_d)
 #' @param hydro_data data.frame containing \code{S_ppm} and \code{Q_cumec} columns for single year
 #' @param sse logical: if \code{TRUE} return SSE, otherwise return vector of salinity
+#' @param salin_init initial salinity. If set to NULL, function will preferentially take 1st salinity observation
+#'   in hydro_data or salin_min
+#' @param salin_min minimum salinity, ie river salinity inflow to control volume
+#' @keywords internal
 #' @details
 #' This function returns the sum of squared error for \code{sim_salin()} using \code{hydro_data$S_ppm}
 #' as a benchmark. Note that any elements of \code{hydro_data$S_ppm} that are \code{NA} will be ignored in
 #' the calibration, meaning that it's possible to calibrate on a subset of dates by setting observed
 #' salinity (\code{hydro_data$S_ppm}) to \code{NA} except on those dates where the model should be calibrated.
 #' @examples
+#' \dontrun{
 #' hydro_data <- ganges_streamflow[ganges_streamflow$date < "2000-01-01",]
 #' # Output salinity in ppm
-#' hydro_data$S_ppm_model <- sim_salin(streamflow_df$Q_cumec, ganges_params$param)
-#' hydro_data$S_ppm <- hydro_data$S_ppm * runif(nrow(hydro_data), min = 0.9, max = 1.1)
+#' hydro_data$S_ppm_model <- sim_salin(hydro_data$Q_cumec, ganges_params$param)
+#' hydro_data$S_ppm <- hydro_data$S_ppm_model * runif(nrow(hydro_data), min = 0.9, max = 1.1)
 #' v <- ganges_params$param
 #' sse_sim_salin(v, hydro_data, sse = TRUE)
+#' }
 sse_sim_salin=function(v, hydro_data, sse = TRUE, salin_init = NULL, salin_min = 100){
   Cobs <- hydro_data$S_ppm
   Q_ts <- hydro_data$Q_cumec
@@ -35,6 +41,8 @@ sse_sim_salin=function(v, hydro_data, sse = TRUE, salin_init = NULL, salin_min =
 #' @param v Model parameters as log(a), lob(b), log(d), log(C_d). Set to NA those which
 #'   should be replaced by \code{v_calibrate}
 #' @param hydro_data data.frame containing \code{S_ppm}, \code{Q_cumec}, and \code{year} columns
+#' @param sse logical, if TRUE will return SSE. Otherwise, returns full data.frame of results
+#' @export
 #' @details
 #' This functions calculates SSE (sum of squared error), comparing modeled salinity output to the
 #' calibration data (\code{hydro_data$S_ppm}). Salinity is modeled using daily streamflow
@@ -55,13 +63,13 @@ sse_sim_salin=function(v, hydro_data, sse = TRUE, salin_init = NULL, salin_min =
 #' sse_all <- sse_wrapper(NULL, v, hydro_data)
 #' sse_all
 #'
-#' hydro_data$Cvect <- sse_wrapper(NULL, v, hydro_data, F)$Cvect
+#' hydro_data$Cvect <- sse_wrapper(NULL, v, hydro_data, FALSE)$Cvect
 #' sse_all_manual <- sum((hydro_data$S_ppm - hydro_data$Cvect)^2)
 #' sse_all_manual
 #'
 #' # Testing specific values
 #' sse_wrapper(NULL, c(-12,v[2:4]), hydro_data)
-sse_wrapper <- function(v_calibrate, v, hydro_data, sse=T) {
+sse_wrapper <- function(v_calibrate, v, hydro_data, sse=TRUE) {
 
   # replace NA values in v with calibrationp arameter values
   v[is.na(v)] <- v_calibrate
@@ -76,14 +84,20 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=T) {
 
 #' Calibrate salinity model to data
 #'
+#' Calibrate some or all salinity model parameters a, b, d, and C_d using salinity data.
+#'
 #' @param v logged parameters as a vector: log(a), log(b), log(d), log(C_d). Use NA for calibration params
 #' @param hydro_data data.frame containing \code{S_ppm}, \code{Q_cumec}, and \code{year} columns
 #' @param method "Nelder-Mead" or method supplied to \code{stats::optim} details below
 #' @param control control parameters supplied to \code{stats::optim} for the \code{SANN} optimization
+#' @export
 #' @details
 #' This function calibrates the parameters in \code{v} set to NA using streamflow and salinity in \code{hydro_data}.
 #' The calibration is done by minimizing the sum of squared error of the modeled salinity with observed salinity.
 #' The minimization is performed using \code{stats::optim} function with simulated annealing.
+#'
+#' Note that any values of \code{hydro_data$S_ppm} that are set to NA will be ignored in the calibration.
+#' In other words, it's possible to calibrate on a subset of dates within this data.frame.
 #'
 #' The \code{method} input can be set to "auto", in which case "Nelder-Mead" is used for multi-variate
 #' optimization and for univariate optimization ("Brent" has given poor results). This can also be set
@@ -103,9 +117,12 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=T) {
 #' hydro_data$year <- as.numeric(strftime(hydro_data$date,"%Y"))
 #'
 #' # Calibrate parameter "a"
+#' \dontrun{
+#' # Nelder-Mead produces a warning with only 1 optimization parameter. Still seems to work though.
 #' v <- ganges_params$param
 #' v[1] <- NA
 #' v_calibrated <- calibrate_salinity_model(hydro_data, v) # warning expected for Nelder-Mead
+#' }
 #'
 #' # Check the percent difference
 #' (v_calibrated$v - ganges_params$param) / ganges_params$param * 100

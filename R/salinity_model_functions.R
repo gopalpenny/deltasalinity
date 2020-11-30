@@ -5,38 +5,37 @@
 #' with synthetic streamflow from only part of the year
 #' @param Q_ts Streamflow values
 #' @param Q_obs_df contains date and all observed Q_cumec
-#' @param v parameters of model.
-#' @param date vector of dates for Q_ts
+#' @param pred_dates vector of dates for Q_ts
 #' @param salin_min minimum salinity in ppm
 sim_salin_prep <- function(Q_ts=NULL,pred_dates=NULL,Q_obs_df=NULL,salin_min=100) {
 
   # join synthetic streamflow with observed streamflow and smooth
   Q_df <- Q_obs_df %>% #rename(obs=Q_cumec) %>%
-    left_join(tibble(pred=Q_ts,date=pred_dates),by="date") %>%
-    mutate(type=ifelse(!is.na(pred),"pred","obs"),
+    dplyr::left_join(tibble(pred=Q_ts,date=pred_dates),by="date") %>%
+    dplyr::mutate(type=ifelse(!is.na(pred),"pred","obs"),
            pred_temp=ifelse(!is.na(pred),pred,Q_cumec),
            year=as.integer(strftime(date,"%Y")),
            yearless_date=as.Date(paste("0000",strftime(date,"%m"),strftime(date,"%d"),sep="-")),
            pre_post=factor(yearless_date>"0000-04-01",levels=c(FALSE,TRUE),labels=c("pre","post"))) %>%
-    filter(year >=1998,year %in% unique(as.integer(strftime(pred_dates,"%Y")))) %>%
-    group_by(year) %>%
-    mutate(pre_pred_date=min(date[type=="pred"]),
+    dplyr::filter(year >=1998,year %in% unique(as.integer(strftime(pred_dates,"%Y")))) %>%
+    dplyr::group_by(year) %>%
+    dplyr::mutate(pre_pred_date=min(date[type=="pred"]),
            pre_obs_date=max(date[type=="obs" & yearless_date < "0000-03-01"]),
            post_pred_date=max(date[type=="pred"]),
            post_obs_date=min(date[type=="obs" & yearless_date > "0000-05-01"])) %>%
-    mutate(pre_pred_temp=ifelse(date==pre_pred_date,pred_temp,0),
+    dplyr::mutate(pre_pred_temp=ifelse(date==pre_pred_date,pred_temp,0),
            pre_obs_temp=ifelse(date==pre_obs_date,pred_temp,0),
            post_pred_temp=ifelse(date==post_pred_date,pred_temp,0),
            post_obs_temp=ifelse(date==post_obs_date,pred_temp,0)) %>%
-    mutate(pre_pred=max(pre_pred_temp),
+    dplyr::mutate(pre_pred=max(pre_pred_temp),
            pre_obs=max(pre_obs_temp),
            post_pred=max(post_pred_temp),
            post_obs=max(post_obs_temp)) %>%
-    mutate(yday=as.integer(strftime(date,"%j")),
+    dplyr::mutate(yday=as.integer(strftime(date,"%j")),
            scale=ifelse(yday >= 20 & yday <= 50 & type=="obs",(pre_pred/pre_obs-1)/30 * (yday-20) + 1,
                         ifelse(yday >= 150 & yday <= 182 & type=="obs",(1-post_pred/post_obs)/32 * (yday-150) + post_pred/post_obs,1)),
            pred_smooth=pred_temp*scale) %>%
-    select(-(pre_pred_date:post_obs_temp)) %>% filter(yearless_date<="0000-08-31")
+    dplyr::select(-(pre_pred_date:post_obs_temp)) %>% dplyr::filter(yearless_date<="0000-08-31")
 
   # get synthetic salinity for each year
 
@@ -47,9 +46,11 @@ sim_salin_prep <- function(Q_ts=NULL,pred_dates=NULL,Q_obs_df=NULL,salin_min=100
 #'
 #' @param Q_df A \code{data.frame} containing \code{Q_cumec} and \code{year} columns
 #' @param v Vector of length 4 containing log parameter values: \code{log(a), log(b), log(d), and log(C_d)}
+#' @export
 #' @examples
+#' library(dplyr)
 #' library(ggplot2)
-#' salinity_results <- sim_salin_annual(ganges_streamflow, calibrated_parameters$param)
+#' salinity_results <- sim_salin_annual(ganges_streamflow, ganges_params$param)
 #' salinity_results_joined <- ganges_streamflow %>%
 #'   left_join(salinity_results[,c("date","S_ppm")], by = "date")
 #' ggplot(salinity_results_joined) + geom_line(aes(yday,S_ppm, color = group))
@@ -67,6 +68,7 @@ sim_salin_annual <- function(Q_df,v) {
 #' @param v Vector of length 4 containing log parameter values: \code{log(a), log(b), log(d), and log(C_d)}
 #' @param salin_init Initial salinity for simulation
 #' @param salin_min Minimum value of salinity
+#' @export
 #' @examples
 #' streamflow_df <- ganges_streamflow[ganges_streamflow$date < "2000-01-01",]
 #' # Output salinity in ppm
