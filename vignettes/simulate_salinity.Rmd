@@ -48,7 +48,7 @@ The `sim_salin` function is fairly straightforward, but in practice it can be tr
 The following code will to load built-in data containing streamflow timeseries and calibrated parameters:
 
 * `ganges_salinity` includes mean daily streamflow at Hardinge bridge since the treaty was signed, as well as synthetic salinity in 2006, generated under the counterfactual scenario that the treaty had not been signed (see [Penny et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2019WR026166))
-* `calibrated_params` contains parameters for the model, calibrated to observed salinity at Khulna station in the Ganges delta for available data since 1990 (again, see [Penny et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2019WR026166)).
+* `ganges_params` contains parameters for the model, calibrated to observed salinity at Khulna station in the Ganges delta for available data since 1990 (again, see [Penny et al., 2020](https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2019WR026166)).
 
 ```{r run,message=FALSE,warning=FALSE}
 # Load libraries: the functions require dplyr, tidyr, and deSolve. read_csv requires readr
@@ -58,7 +58,7 @@ library(ggplot2) # loads dplyr, tidyr, and readr
 library(deSolve)
 
 # Load the data
-v <- calibrated_parameters
+v <- ganges_params
 print(v)
 
 streamflow_df <- ganges_streamflow
@@ -84,7 +84,7 @@ results_df <- streamflow_df %>%
 p_results <- ggplot(results_df %>% gather(var,val,Q_cumec,S_ppm)) + 
   geom_line(aes(yday,val, color = group)) +
   facet_wrap(~var,ncol=1,scales="free") +
-  theme(legend.position = c(0.8,0.9))
+  theme(legend.position = c(0.2,0.9),legend.title = element_blank())
 print(p_results)
 ```
 ```
