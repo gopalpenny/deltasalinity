@@ -60,7 +60,7 @@ sse_sim_salin=function(v, hydro_data, sse = TRUE, salin_init = NULL, salin_min =
 #' sse_all_manual
 #'
 #' # Testing specific values
-#' sse_wrapper(NULL, c(-1e4,v[2:4]), hydro_data)
+#' sse_wrapper(NULL, c(-12,v[2:4]), hydro_data)
 sse_wrapper <- function(v_calibrate, v, hydro_data, sse=T) {
 
   # replace NA values in v with calibrationp arameter values
@@ -78,7 +78,7 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=T) {
 #'
 #' @param v logged parameters as a vector: log(a), log(b), log(d), log(C_d). Use NA for calibration params
 #' @param hydro_data data.frame containing \code{S_ppm}, \code{Q_cumec}, and \code{year} columns
-#' @param method "auto" or method supplied to \code{stats::optim} details below
+#' @param method "Nelder-Mead" or method supplied to \code{stats::optim} details below
 #' @param control control parameters supplied to \code{stats::optim} for the \code{SANN} optimization
 #' @details
 #' This function calibrates the parameters in \code{v} set to NA using streamflow and salinity in \code{hydro_data}.
@@ -86,9 +86,9 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=T) {
 #' The minimization is performed using \code{stats::optim} function with simulated annealing.
 #'
 #' The \code{method} input can be set to "auto", in which case "Nelder-Mead" is used for multi-variate
-#' optimization or "Brent" for univariate optimization. This can also be set to any of the \code{method}
-#' options allowed by \code{stats::optim} -- see \code{?optim} for details. Note that the Brent method imposes
-#' limits to the logged parameter values of [-1e4,1e4].
+#' optimization and for univariate optimization ("Brent" has given poor results). This can also be set
+#' to any of the \code{method}
+#' options allowed by \code{stats::optim} -- see \code{?optim} for details.
 #' @return
 #' The function returns a list containing $v, all parameters including calibrated ones and
 #' $optimization_outputs, which contains outputs from the optimization.
@@ -105,7 +105,7 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=T) {
 #' # Calibrate parameter "a"
 #' v <- ganges_params$param
 #' v[1] <- NA
-#' v_calibrated <- calibrate_salinity_model(hydro_data, v)
+#' v_calibrated <- calibrate_salinity_model(hydro_data, v) # warning expected for Nelder-Mead
 #'
 #' # Check the percent difference
 #' (v_calibrated$v - ganges_params$param) / ganges_params$param * 100
@@ -114,22 +114,24 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=T) {
 #' v <- ganges_params$param
 #' v[c(2,3)] <- NA
 #' v_calibrated <- calibrate_salinity_model(hydro_data, v)
+#' v_calibrated$v
 #'
 #' # Check the percent difference
 #' (v_calibrated$v - ganges_params$param) / ganges_params$param * 100
-calibrate_salinity_model <- function(hydro_data, v, method = "auto", control = list(trace = T)) {
+calibrate_salinity_model <- function(hydro_data, v, method = "Nelder-Mead", control = list(trace = T)) {
   # lower and upper bounds for optim
   lower <- -Inf
   upper <- Inf
-  if (method == "auto") {
-    if (sum(is.na(v)) == 1) {
-      method <- "Brent"
-      lower <- -1e10
-      upper <- 1e10
-    } else {
-      method <- "Nelder-Mead"
-    }
-  }
+  # Brent, L-BFGS-B, and CG all seem to produce poor results
+  # if (method == "auto") {
+  #   if (sum(is.na(v)) == 1) {
+  #     method <- "L-BFGS-B"
+  #     lower <- -1e10
+  #     upper <- 1e10
+  #   } else {
+  #     method <- "Nelder-Mead"
+  #   }
+  # }
 
   cat("Calibrating using",method,"method...\n")
 
