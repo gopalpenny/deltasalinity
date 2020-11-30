@@ -153,7 +153,7 @@ calibrate_salinity_model <- function(hydro_data, v, method = "Nelder-Mead", cont
   cat("Calibrating using",method,"method...\n")
 
   v_init <- log(c(.00001,.001,.0001,10000))
-  op=optim(par=v_init[is.na(v)], # par=log(c(.0000000001,.08,.0001,1000)),
+  op=stats::optim(par=v_init[is.na(v)], # par=log(c(.0000000001,.08,.0001,1000)),
            fn = sse_wrapper,
            hydro_data = hydro_data,
            v = v,
