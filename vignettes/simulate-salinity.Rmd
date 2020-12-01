@@ -1,8 +1,8 @@
 ---
-title: "A advection + first-order exchange model of channel salinity"
+title: "An advection and first-order exchange model of channel salinity"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{simulate-salinity}
+  %\VignetteIndexEntry{An advection and first-order exchange model of channel salinity}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

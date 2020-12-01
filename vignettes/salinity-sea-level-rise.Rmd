@@ -2,7 +2,7 @@
 title: "Salinity and sea level rise"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{salinity-sea-level-rise}
+  %\VignetteIndexEntry{Salinity and sea level rise}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
