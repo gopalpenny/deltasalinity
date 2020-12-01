@@ -2,8 +2,7 @@
 
 export("%>%")
 export(calibrate_salinity_model)
-export(get_ganges_SLR_channel_ratios)
-export(get_ganges_SLR_gw_ratios)
+export(get_ganges_SLR_ratios)
 export(sim_salin)
 export(sim_salin_annual)
 export(sse_wrapper)
