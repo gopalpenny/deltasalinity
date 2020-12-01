@@ -18,3 +18,4 @@ ggplot(channel_ratios) +
   geom_line(aes(SLR_m, R_E, color = "R_E")) +
   geom_line(aes(SLR_m, R_V, color = "R_V")) + ylab("Ratio")
 }
+\keyword{internal}
