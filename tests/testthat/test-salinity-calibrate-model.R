@@ -17,17 +17,17 @@ v[1] <- NA
 v_calibrated <- suppressWarnings(calibrate_salinity_model(hydro_data, v, control = list(trace = F))) # warning expected for Nelder-Mead
 
 # Check the percent difference
-pct_diff1 <- (v_calibrated$v - ganges_params$param) / ganges_params$param * 100#
+pct_diff1 <- (v_calibrated - ganges_params$param) / ganges_params$param * 100#
 pct_diff1_output <- c(-0.0055, 0, 0, 0)
 
 # Calibrate parameters "b" and "d"
 v <- ganges_params$param
 v[c(2,3)] <- NA
 v_calibrated <- calibrate_salinity_model(hydro_data, v, control = list(trace = F))
-# v_calibrated$v
+# v_calibrated
 
 # Check the percent difference
-pct_diff2 <- (v_calibrated$v - ganges_params$param) / ganges_params$param * 100
+pct_diff2 <- (v_calibrated - ganges_params$param) / ganges_params$param * 100
 pct_diff2_output <- c(0, -0.724, -0.2124, 0) # paste(round(pct_diff2,4),collapse = ", ")
 
 test_that("check calibration using Nelder-Mead",{

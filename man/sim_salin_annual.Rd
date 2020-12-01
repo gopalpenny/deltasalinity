@@ -11,6 +11,9 @@ sim_salin_annual(Q_df, v)
 
 \item{v}{Vector of length 4 containing log parameter values: \code{log(a), log(b), log(d), and log(C_d)}}
 }
+\value{
+A vector of salinity corresponding to input Q_cumec, with each year simulated separately
+}
 \description{
 Simulate salinity, re-initializing each year
 }

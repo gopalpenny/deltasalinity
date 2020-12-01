@@ -108,8 +108,7 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=TRUE) {
 #' to any of the \code{method}
 #' options allowed by \code{stats::optim} -- see \code{?optim} for details.
 #' @return
-#' The function returns a list containing $v, all parameters including calibrated ones and
-#' $optimization_outputs, which contains outputs from the optimization.
+#' The function returns a vector of all (logged) parameters including calibrated ones
 #' @examples
 #' library(deltasalinity)
 #' hydro_data <- ganges_streamflow
@@ -128,17 +127,17 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=TRUE) {
 #' v_calibrated <- calibrate_salinity_model(hydro_data, v) # warning expected for Nelder-Mead
 #'
 #' # Check the percent difference
-#' (v_calibrated$v - ganges_params$param) / ganges_params$param * 100
+#' (v_calibrated - ganges_params$param) / ganges_params$param * 100
 #' }
 #'
 #' # Calibrate parameters "b" and "d"
 #' v <- ganges_params$param
 #' v[c(2,3)] <- NA
 #' v_calibrated <- calibrate_salinity_model(hydro_data, v)
-#' v_calibrated$v
+#' v_calibrated
 #'
 #' # Check the percent difference
-#' (v_calibrated$v - ganges_params$param) / ganges_params$param * 100
+#' (v_calibrated - ganges_params$param) / ganges_params$param * 100
 calibrate_salinity_model <- function(hydro_data, v, method = "Nelder-Mead", control = list(trace = T)) {
   # lower and upper bounds for optim
   lower <- -Inf
@@ -166,6 +165,6 @@ calibrate_salinity_model <- function(hydro_data, v, method = "Nelder-Mead", cont
            control = control)
   v_calibrated <- v
   v_calibrated[is.na(v)] <- op$par
-  return(list(v = v_calibrated, optimization_outputs = op))
+  return(v_calibrated)
 }
 
