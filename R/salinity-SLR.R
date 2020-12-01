@@ -7,6 +7,7 @@
 #' @export
 #' @keywords internal
 #' @examples
+#' library(ggplot2)
 #' channel_ratios <- get_ganges_SLR_channel_ratios(SLR_m = seq(0,1,by = 0.05))
 #' ggplot(channel_ratios) +
 #'   geom_line(aes(SLR_m, R_E, color = "R_E")) +
@@ -24,6 +25,7 @@ get_ganges_SLR_channel_ratios <- function(SLR_m) {
 #' @export
 #' @keywords internal
 #' @examples
+#' library(ggplot2)
 #' gw_ratios <- get_ganges_SLR_gw_ratios(SLR_m = seq(0,1,by = 0.05))
 #' ggplot(gw_ratios) +
 #'   geom_line(aes(SLR_m, R_E, color = "R_E")) +
