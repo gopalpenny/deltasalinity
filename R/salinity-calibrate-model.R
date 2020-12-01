@@ -49,10 +49,10 @@ sse_sim_salin=function(v, hydro_data, sse = TRUE, salin_init = NULL, salin_min =
 #' (\code{hydro_data$Q_cumec}) and the parameters \code{v} -- and those values of \code{v} that are
 #' NA are replaced by values in \code{v_calibrate}.
 #' @examples
-#' hydro_data_orig <- ganges_streamflow
+#' hydro_data <- ganges_streamflow
 #' v <- ganges_params$param
 #' # Output salinity in ppm
-#' hydro_data <- sim_salin_annual(hydro_data_orig, v)
+#' hydro_data$S_ppm <- sim_salin_annual(hydro_data_orig, v)
 #'
 #' # add random error to salinity output
 #' set.seed(100)
@@ -70,6 +70,10 @@ sse_sim_salin=function(v, hydro_data, sse = TRUE, salin_init = NULL, salin_min =
 #' # Testing specific values
 #' sse_wrapper(NULL, c(-12,v[2:4]), hydro_data)
 sse_wrapper <- function(v_calibrate, v, hydro_data, sse=TRUE) {
+
+  if (!("year" %in% names(hydro_data))) {
+    hydro_data$year <- as.numeric(strftime(hydro_data$date,"%Y"))
+  }
 
   # replace NA values in v with calibrationp arameter values
   v[is.na(v)] <- v_calibrate
@@ -108,11 +112,11 @@ sse_wrapper <- function(v_calibrate, v, hydro_data, sse=TRUE) {
 #' $optimization_outputs, which contains outputs from the optimization.
 #' @examples
 #' library(deltasalinity)
-#' hydro_data <- sim_salin_annual(ganges_streamflow, ganges_params$param)
+#' hydro_data <- ganges_streamflow
+#' hydro_data$S_ppm_orig <- sim_salin_annual(ganges_streamflow, ganges_params$param)
 #'
 #' # Add random error to salinity output
 #' set.seed(100)
-#' hydro_data$S_ppm_orig <- hydro_data$S_ppm
 #' hydro_data$S_ppm <- hydro_data$S_ppm_orig * runif(nrow(hydro_data), min = 0.9, max = 1.1)
 #' hydro_data$year <- as.numeric(strftime(hydro_data$date,"%Y"))
 #'

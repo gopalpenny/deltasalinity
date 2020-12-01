@@ -42,11 +42,11 @@ options allowed by \code{stats::optim} -- see \code{?optim} for details.
 }
 \examples{
 library(deltasalinity)
-hydro_data <- sim_salin_annual(ganges_streamflow, ganges_params$param)
+hydro_data <- ganges_streamflow
+hydro_data$S_ppm_orig <- sim_salin_annual(ganges_streamflow, ganges_params$param)
 
 # Add random error to salinity output
 set.seed(100)
-hydro_data$S_ppm_orig <- hydro_data$S_ppm
 hydro_data$S_ppm <- hydro_data$S_ppm_orig * runif(nrow(hydro_data), min = 0.9, max = 1.1)
 hydro_data$year <- as.numeric(strftime(hydro_data$date,"\%Y"))
 

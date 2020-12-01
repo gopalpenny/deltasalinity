@@ -67,7 +67,8 @@ streamflow_df <- ganges_streamflow
 print(streamflow_df)
 
 # Simulate salinity annually
-salinity_results <- sim_salin_annual(streamflow_df, v$param)
+salinity_results <- streamflow_df %>%
+  bind_cols(S_ppm = sim_salin_annual(streamflow_df, v$param))
 ```
 
 The tabulated results are (`print(results)`):
@@ -78,12 +79,8 @@ salinity_results
 The results plotted:
 
 ```{r fig.width = 6, fig.height = 4}
-# Combine results with streamflow data frame for plotting
-results_df <- streamflow_df %>%
-  dplyr::left_join(salinity_results[,c("date","S_ppm")],by = "date")
-
 # Plot the results
-p_results <- ggplot(results_df %>% gather(var,val,Q_cumec,S_ppm)) + 
+p_results <- ggplot(salinity_results %>% gather(var,val,Q_cumec,S_ppm)) + 
   geom_line(aes(yday,val, color = group)) +
   facet_wrap(~var,ncol=1,scales="free") +
   theme(legend.position = c(0.2,0.9),legend.title = element_blank())

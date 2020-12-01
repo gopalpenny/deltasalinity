@@ -5,6 +5,8 @@
 #' @param Q_df A \code{data.frame} containing \code{Q_cumec} and \code{year} columns. The rows must be in order of consecutive days.
 #' @param v Vector of length 4 containing log parameter values: \code{log(a), log(b), log(d), and log(C_d)}
 #' @export
+#' @return
+#' A vector of salinity corresponding to input Q_cumec, with each year simulated separately
 #' @examples
 #' library(ggplot2)
 #'

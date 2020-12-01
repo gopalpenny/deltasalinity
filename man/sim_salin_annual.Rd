@@ -7,7 +7,7 @@
 sim_salin_annual(Q_df, v)
 }
 \arguments{
-\item{Q_df}{A \code{data.frame} containing \code{Q_cumec} and \code{year} columns}
+\item{Q_df}{A \code{data.frame} containing \code{Q_cumec} and \code{year} columns. The rows must be in order of consecutive days.}
 
 \item{v}{Vector of length 4 containing log parameter values: \code{log(a), log(b), log(d), and log(C_d)}}
 }
@@ -15,10 +15,14 @@ sim_salin_annual(Q_df, v)
 Simulate salinity, re-initializing each year
 }
 \examples{
-library(dplyr)
 library(ggplot2)
-salinity_results <- sim_salin_annual(ganges_streamflow, ganges_params$param)
-salinity_results_joined <- ganges_streamflow \%>\%
-  left_join(salinity_results[,c("date","S_ppm")], by = "date")
-ggplot(salinity_results_joined) + geom_line(aes(yday,S_ppm, color = group))
+
+# Create new data.frame with streamflow input variables
+streamflow_df <- ganges_streamflow
+
+# Simulate salinity each year
+streamflow_df$S_ppm <- sim_salin_annual(ganges_streamflow, ganges_params$param)
+
+# Plot the output
+ggplot(streamflow_df) + geom_line(aes(yday,S_ppm, color = group))
 }

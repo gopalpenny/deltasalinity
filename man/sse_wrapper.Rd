@@ -26,10 +26,10 @@ calibration data (\code{hydro_data$S_ppm}). Salinity is modeled using daily stre
 NA are replaced by values in \code{v_calibrate}.
 }
 \examples{
-hydro_data_orig <- ganges_streamflow
+hydro_data <- ganges_streamflow
 v <- ganges_params$param
 # Output salinity in ppm
-hydro_data <- sim_salin_annual(hydro_data_orig, v)
+hydro_data$S_ppm <- sim_salin_annual(hydro_data_orig, v)
 
 # add random error to salinity output
 set.seed(100)

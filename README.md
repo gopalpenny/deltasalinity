@@ -35,13 +35,11 @@ library(deltasalinity)
 library(ggplot2)
 
 # Simulate salinity
-salinity_results <- sim_salin_annual(ganges_streamflow, ganges_params$param)
-salinity_results$yday <- as.numeric(strftime(salinity_results$date, "%j"))
+salinity_results <- ganges_streamflow # create data.frame that will hold results
+salinity_results$S_ppm <- sim_salin_annual(ganges_streamflow, ganges_params$param)
 
-# Join the simulated salinity output with the original input data
-salinity_results_joined <- merge(ganges_streamflow, salinity_results[,c("date","S_ppm")], by = "date")
-
-ggplot(salinity_results_joined) + geom_line(aes(yday,S_ppm, color = group))
+# Plot the results
+ggplot(salinity_results) + geom_line(aes(yday,S_ppm, color = group))
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
