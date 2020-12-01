@@ -2,7 +2,8 @@ library(dplyr)
 
 # CHECK CALIBRATION
 
-hydro_data <- sim_salin_annual(ganges_streamflow, ganges_params$param)
+hydro_data <- ganges_streamflow %>%
+  bind_cols(S_ppm = sim_salin_annual(ganges_streamflow, ganges_params$param))
 
 # Add random error to salinity output
 set.seed(100)
@@ -23,7 +24,7 @@ pct_diff1_output <- c(-0.0055, 0, 0, 0)
 v <- ganges_params$param
 v[c(2,3)] <- NA
 v_calibrated <- calibrate_salinity_model(hydro_data, v, control = list(trace = F))
-v_calibrated$v
+# v_calibrated$v
 
 # Check the percent difference
 pct_diff2 <- (v_calibrated$v - ganges_params$param) / ganges_params$param * 100

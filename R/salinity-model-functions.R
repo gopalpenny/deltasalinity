@@ -2,23 +2,36 @@
 
 #' Simulate salinity, re-initializing each year
 #'
-#' @param Q_df A \code{data.frame} containing \code{Q_cumec} and \code{year} columns
+#' @param Q_df A \code{data.frame} containing \code{Q_cumec} and \code{year} columns. The rows must be in order of consecutive days.
 #' @param v Vector of length 4 containing log parameter values: \code{log(a), log(b), log(d), and log(C_d)}
 #' @export
 #' @examples
-#' library(dplyr)
 #' library(ggplot2)
-#' salinity_results <- sim_salin_annual(ganges_streamflow, ganges_params$param)
-#' salinity_results_joined <- ganges_streamflow %>%
-#'   left_join(salinity_results[,c("date","S_ppm")], by = "date")
-#' ggplot(salinity_results_joined) + geom_line(aes(yday,S_ppm, color = group))
+#'
+#' # Create new data.frame with streamflow input variables
+#' streamflow_df <- ganges_streamflow
+#'
+#' # Simulate salinity each year
+#' streamflow_df$S_ppm <- sim_salin_annual(ganges_streamflow, ganges_params$param)
+#'
+#' # Plot the output
+#' ggplot(streamflow_df) + geom_line(aes(yday,S_ppm, color = group))
 sim_salin_annual <- function(Q_df,v) {
-  S_synth_df <- do.call(c,lapply(split(Q_df$Q_cumec,Q_df$year),
-                              sim_salin,v=v))
+
+  if (!("year" %in% names(Q_df))) {
+    Q_df$year <- as.numeric(strftime(Q_df$date,"%Y"))
+  }
+
+  Q_split <- split(Q_df$Q_cumec,Q_df$year)
+
+  if (!identical(Q_df$Q_cumec, as.numeric(do.call(c,Q_split)))) {
+    stop("Ensure that Q_df is ordered so that each year is clustered together")
+  }
+
+  S_synth_df <- do.call(c,lapply(Q_split,sim_salin,v=v))
   S_synth <- as.numeric(S_synth_df)
 
-  Q_output <- tibble::tibble(date = Q_df$date, Q_cumec = Q_df$Q_cumec, S_ppm = S_synth)
-  return(Q_output)
+  return(S_synth)
 }
 
 #' Simulate salinity for a timeseries of streamflow

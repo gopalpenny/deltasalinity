@@ -18,7 +18,8 @@ test_that("Test for sim_salin using treaty data",{
 })
 
 # Simulate salinity annually
-salinity_results <- sim_salin_annual(ganges_streamflow, ganges_params$param)
+salinity_results <- ganges_streamflow %>%
+  bind_cols(S_ppm=sim_salin_annual(ganges_streamflow, ganges_params$param))
 salinity_results_may_treaty <- salinity_results %>%
   filter(date %in% seq(as.Date("1998-05-01"),as.Date("1998-05-05"),by=1)) %>%
   dplyr::select(c("Q_cumec","S_ppm")) %>%
