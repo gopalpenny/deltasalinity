@@ -5,6 +5,9 @@
 
 <!-- badges: start -->
 
+[![Build
+Status](https://travis-ci.com/gopalpenny/deltasalinity.svg?branch=main)](https://travis-ci.com/gopalpenny/deltasalinity)
+[![codecov](https://codecov.io/gh/gopalpenny/deltasalinity/branch/main/graph/badge.svg?token=JQA0SJA46D)](https://codecov.io/gh/gopalpenny/deltasalinity)
 <!-- badges: end -->
 
 The goal of deltasalinity is to provide functions to calibrate and
