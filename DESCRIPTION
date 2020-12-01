@@ -21,7 +21,8 @@ Suggests:
     ggplot2,
     tidyr,
     tibble,
-    deSolve
+    deSolve,
+    covr
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 Imports: 
