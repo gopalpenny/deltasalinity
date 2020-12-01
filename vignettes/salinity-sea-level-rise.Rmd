@@ -42,7 +42,7 @@ Both approaches are described in the following section.
 If the channel is completely isolated from groundwater, then calculating $R_E$ and $R_V$ requires calculating $V$ and $\Delta V$ in the channel with and without sea level rise. We have done this by interpolating channel cross-sectional area at 16 locations spanning the Gorai to the Rupsa river. Channel area was fit as a power law of river stage at each of the 16 locations. The mean stage at each cross section was determined for present conditions via a linear interpolation from SW99 (the start of the Gorai river) to SW244 (Mongla, the most downstream location). We assumed that sea level rise would increase mean stage equally through the delta, so that the channel area under sea level rise could be calculated at each cross section using the original stage + sea level rise. We assumed that tidal oscillations dissipating as an exponential function moving further upstream. We therefore interpolated an exponential function to pass through the observed tidal oscillations at SW99 and SW244, and assumed that the magnitude of tidal oscillations (high tide - low tide) would remain constant with sea level rise. The change in channel area would therefore simply be recalculated as channel area with SLR at high tide minus channel area with SLR at low tide. The net result of this analysis produced curves for $R_E$ and $R_V$ that were nearly linear (R$^2$ > 0.99) for sea level rise in the range $[0,1]$ m.
 
 ```{r fig.width = 4, fig.height = 2}
-channel_ratios <- get_ganges_SLR_channel_ratios(SLR_m = seq(0,1,by = 0.05))
+channel_ratios <- get_ganges_SLR_ratios(SLR_m = seq(0,1,by = 0.05))
 ggplot(channel_ratios) + 
   geom_line(aes(SLR_m, R_E, color = "R_E")) + 
   geom_line(aes(SLR_m, R_V, color = "R_V")) + ylab("Ratio")
@@ -54,7 +54,7 @@ ggplot(channel_ratios) +
 In the fully mixed version, we assume that the total volume is simply proportional to the depth of the water in the channel -- in other words, the elevation of the water surface minus the elevation of the river bed. We take the average across all cross sections in the Gorai - Naboganga - Rupsa river, with and without sea level rise, to determine $R_V$. Because the magnitude of tidal oscillations does not depend on sea level rise, $R_E = 1$.
 
 ```{r fig.width = 4, fig.height = 2}
-gw_ratios <- get_ganges_SLR_gw_ratios(SLR_m = seq(0,1,by = 0.05))
+gw_ratios <- get_ganges_SLR_ratios(SLR_m = seq(0,1,by = 0.05), "gw")
 ggplot(gw_ratios) + 
   geom_line(aes(SLR_m, R_E, color = "R_E")) + 
   geom_line(aes(SLR_m, R_V, color = "R_V")) + ylab("Ratio")
