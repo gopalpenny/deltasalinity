@@ -2,6 +2,7 @@
 
 export("%>%")
 export(calibrate_salinity_model)
+export(get_SLR_channel_ratios)
 export(sim_salin)
 export(sim_salin_annual)
 export(sse_wrapper)
