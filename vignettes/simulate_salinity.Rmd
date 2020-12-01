@@ -2,7 +2,7 @@
 title: "A advection + first-order exchange model of channel salinity"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{simulate_salinity}
+  %\VignetteIndexEntry{simulate-salinity}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(deltasalinity)
+
+ganges_params$
 ```
 
 ## The model
