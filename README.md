@@ -45,3 +45,8 @@ ggplot(salinity_results_joined) + geom_line(aes(yday,S_ppm, color = group))
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+
+# Package website
+
+More information can be found on the [github.io
+site](https://gopalpenny.github.io/deltasalinity/) for this package
