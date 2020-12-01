@@ -4,10 +4,10 @@ Title: Advection and first-order exchange model of delta salinity
 Version: 0.1.0
 Author: Gopal Penny
 Maintainer: Gopal Penny <gpenny@nd.edu>
-Description: This package implements a simple mixing model of delta salinity
+Description: This package implements a simple mixing model of channel salinity
     that includes advection and first order exchange within a single control volume.
     The package includes calibration functions, in addition to calibrated data
-    at Khulna in the Ganges delta.
+    at Khulna, along the Naboganga river in the Ganges delta.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
