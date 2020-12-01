@@ -1,5 +1,6 @@
 ## code to prepare `ganges_streamflow` dataset goes here
 
+library(readr)
 
 # Load the data
 Q_obs <- read_csv("./ignore/ganges_streamflow/Q_observed_filtered.csv")
@@ -18,9 +19,8 @@ Q_treaty_hardinge_avg <- Q_obs %>%
 # Prepare the data
 Q_ts <- Q_synth %>% dplyr::pull(predOLSNO_Q050) # select the median quantile, Q050
 Q_dates <- Q_synth %>% dplyr::pull(date)
-Q_dates <- Q_synth %>% dplyr::pull(date)
 Q_prepped <- sim_salin_prep(Q_ts, pred_dates=Q_dates, Q_obs_df=Q_obs) %>%
-  dplyr::filter(year == 2006, date <= "2006-06-30") %>%
+  dplyr::filter(year %in% c(2006), yearless_date <= "0000-06-30") %>%
   left_join(Q_treaty_hardinge_avg %>% select(yearless_date, Q_treaty_avg = Q_cumec), by = "yearless_date")#
 
 # shift 2006 data to follow treaty average in June
