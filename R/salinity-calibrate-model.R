@@ -52,7 +52,7 @@ sse_sim_salin=function(v, hydro_data, sse = TRUE, salin_init = NULL, salin_min =
 #' hydro_data <- ganges_streamflow
 #' v <- ganges_params$param
 #' # Output salinity in ppm
-#' hydro_data$S_ppm <- sim_salin_annual(hydro_data_orig, v)
+#' hydro_data$S_ppm <- sim_salin_annual(hydro_data, v)
 #'
 #' # add random error to salinity output
 #' set.seed(100)
