@@ -46,6 +46,6 @@ salinity_results$S_ppm <- sim_salin_annual(ganges_streamflow, ganges_params$para
 ggplot(salinity_results) + geom_line(aes(yday,S_ppm, color = group))
 ```
 
-# Package website
+## Package website
 
 More information can be found on the [github.io site](https://gopalpenny.github.io/deltasalinity/) for this package
