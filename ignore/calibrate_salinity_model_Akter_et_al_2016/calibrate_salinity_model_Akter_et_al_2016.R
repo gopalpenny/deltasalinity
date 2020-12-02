@@ -1,0 +1,19 @@
+Q_obs_2011 <- read_csv("./ignore/ganges_streamflow/Q_observed_filtered.csv") %>%
+  filter(date >= "2011-01-01", date<="2011-06-30")
+
+# Get calibration data
+treat_salinity_54cm <- Q_obs_2011 %>%
+  bind_cols(S_ppm_model_baseline = sim_salin_annual(Q_obs_2011, v = ganges_params$param)) %>%
+  mutate(S_ppm_SLR_calibrate = if_else(date == "2011-06-06",
+                                       S_ppm_model_baseline * (dasgupta_slr67cm_pct_increase+1), as.numeric(NA)))
+
+### Update calibration parameters a and b
+v_ab_channel_slr54 <- update_ab_SLR(ganges_params$param, SLR_m = 0.54, "channel")
+
+### Calibrate parameter d
+# sea level rise of 54 cm
+v_slr54 <- treat_salinity_54cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>%
+  calibrate_salinity_model(v_ab_channel_slr54, control = list(trace = FALSE))
+
+# paste(v_slr54,collapse=",")
+# v_slr54 <- c(-12.645827591134,-4.25586229021828,-6.64061943030275,10.4631033404715)
