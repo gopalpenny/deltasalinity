@@ -14,9 +14,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message = FALSE}
 library(deltasalinity)
 library(ggplot2)
+library(dplyr)
+library(tidyr)
 ```
 
 Previously, the salinity model was defined as:
@@ -59,6 +61,117 @@ ggplot(gw_ratios) +
   geom_line(aes(SLR_m, R_E, color = "R_E")) + 
   geom_line(aes(SLR_m, R_V, color = "R_V")) + ylab("Ratio")
 ```
+
+
+## Calibrate to Dasgupta et al., 2015
+
+```{r include=FALSE}
+dasgupta_slr35cm_march_S_ppm <- (0.05/0.128)*5 + ((0.128-0.05)/0.128)*10
+dasgupta_slr35cm_pct_increase <- (dasgupta_slr35cm_march_S_ppm-5)/5
+dasgupta_slr67cm_march_S_ppm <- (0.034/0.2)*5 + ((0.2-0.034)/0.2)*10
+dasgupta_slr67cm_pct_increase <- (dasgupta_slr67cm_march_S_ppm-5)/5
+```
+
+
+S. Dasgupta, F.A. Kamal, Z.H. Khan, S. Choudhury, A. Nishat, River salinity and climate change: Evidence from coastal Bangladesh, World Sci. Ref. Asia World Econ. (2015) 205–242. doi:10.1142/9789814578622_0031.
+
+Here the authors develop a mode to simulate salinity in the GBM delta by combining a localized rainfall-runoff model, a hydrodynamic (water flow and water level) module (MIKE 11), a Bay of Bengal salinity model based on MIKE 21FM, and a salinity model by combining advection-dispersion from MIKE 11 with the hydrodynamic model. The simulations included average inflor from India calculated as the average since the treaty was signed (1998-2013).
+
+They simulate multiple scenarios in 2050, and plot the results for three specific scenarios:
+
+* Baseline (2012) -- March average salinity is 5 ppt
+* Best future, 35 cm RMSLR (8 cm subsidence + 27 cm SLR) -- March salinity is `r dasgupta_slr35cm_march_S_ppm` ppt, or an increase of `r dasgupta_slr35cm_pct_increase*100`%. 
+* Best future, 67 cm RMSLR (34 cm subsidence + 33 cm SLR) -- March salinity is `r dasgupta_slr67cm_march_S_ppm` ppt, or an increase of `r dasgupta_slr67cm_pct_increase*100`%.
+
+Subsidence throughout the entire delta would cause the hydrodynamics within the delta to behave similarly to sea level rise. We therefore calibrate our model using the RMSLR scenarios directly as SLR.
+
+### Prepare calibration data
+
+```{r}
+treaty_streamflow <- ganges_streamflow[ganges_streamflow$group == "Treaty avg",]
+treat_salinity_35cm <- treaty_streamflow %>%
+  bind_cols(S_ppm_model_baseline = sim_salin_annual(treaty_streamflow, v = ganges_params$param)) %>%
+  mutate(S_ppm_SLR_calibrate = if_else(date >= "1998-03-01" & date <= "1998-03-31",
+                                       S_ppm_model_baseline * (dasgupta_slr35cm_pct_increase+1), as.numeric(NA)))
+treat_salinity_67cm <- treaty_streamflow %>%
+  bind_cols(S_ppm_model_baseline = sim_salin_annual(treaty_streamflow, v = ganges_params$param)) %>%
+  mutate(S_ppm_SLR_calibrate = if_else(date >= "1998-03-01" & date <= "1998-03-31",
+                                       S_ppm_model_baseline * (dasgupta_slr67cm_pct_increase+1), as.numeric(NA)))
+```
+
+### Update calibration parameters a and b
+
+```{r}
+# get new a and b calibration parameters
+v_ab_channel_slr35 <- update_ab_SLR(ganges_params$param, SLR_m = 0.35, "channel")
+v_ab_channel_slr67 <- update_ab_SLR(ganges_params$param, SLR_m = 0.67, "channel")
+```
+
+### Calibrate parameter d
+
+```{r}
+# sea level rise of 35 cm
+v_slr35 <- treat_salinity_35cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
+  calibrate_salinity_model(v_ab_channel_slr35, control = list(trace = FALSE))
+
+# sea level rise of 67 cm
+v_slr67 <- treat_salinity_67cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
+  calibrate_salinity_model(v_ab_channel_slr67, control = list(trace = FALSE))
+```
+
+```{r}
+get_ganges_slr_params <- function(hydro_data, v, SLR_m, control_volume) {
+  v_ab_channel <- update_ab_SLR(v = v, SLR_m = SLR_m, control_volume = control_volume)
+  
+  v_slr <- hydro_data %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
+    calibrate_salinity_model(v_ab, control = list(trace = FALSE))
+}
+```
+
+
+## Calibrate to Akter et al, 
+
+```{r include=FALSE}
+akter_slr54cm_march_S_ppm <- (27.4/68.9)*10 + ((68.9-27.4)/68.9)*15
+akter_slr54cm_pct_increase <- (akter_slr54cm_march_S_ppm-5)/5
+```
+
+R. Akter, M. Sakib, M. Rahman, Sumaiya, A. Haque, M.M. Rahman, M.R. Islam, CLIMATIC AND CYCLONE INDUCED STORM SURGE IMPACT ON SALINITY INTRUSION ALONG THE BANGLADESH COAST, in: Proc. 6th Int. Conf. Appl. Phys. Model. Coast. Port Eng. Sci., Ottawa, Canada, 2016.
+
+In this paper, the authors build a salinity model for the GBM delta and simulate salnity throughout the delta in 2011 under current conditions and in 2092 with a temperature increase of 4$^\circ$C and a sea level rise of 0.54 m. In both cases, streamflow data from 2011 was used.
+
+They simulate two scenarios including 2011 and 2092:
+
+* Baseline (2011) -- June 6 salinity at Khulna is 5 ppt
+* Climate change with 54 cm SLR -- June 6 salinity is `r akter_slr54cm_march_S_ppm` ppt, or an increase of `r akter_slr54cm_pct_increase*100`%. 
+
+The calibration is done in a separate file with 2011 streamflow to achieve the results below.
+
+```{r}
+v_slr54 <- c(-12.645827591134,-4.25586229021828,-6.64061943030275,10.4631033404715)
+```
+
+# Combine calibration results
+
+```{r fig.width  = 8, fig.height = 2}
+slr_data <- as.data.frame(matrix(c(ganges_params$param, v_slr35, v_slr67, v_slr54),nrow = 4, byrow = FALSE)) %>% 
+  setNames(c("SLR_Baseline_0", "SLR_Dasgupta2014_35","SLR_Dasgupta2014_67","SLR_Akter2016_54")) %>%
+  bind_cols(log_var = c("log(a)","log(b)","log(d)","log(C_d)")) %>% 
+  pivot_longer(starts_with("SLR_"),names_to = "source_slr", names_prefix = "SLR_", values_to = "log_param") %>%
+  separate(source_slr,into = c("source","SLR_cm"), sep="_") %>%
+  mutate(SLR_cm = as.numeric(SLR_cm),
+         param = exp(log_param),
+         var = gsub(".*\\((.*?)\\)","\\1",log_var))
+
+p_slr <- ggplot(slr_data %>% filter(var %in% c("a","b","d"))) + 
+  geom_point(aes(SLR_cm, param, color = source, shape = source), size = 2, stroke = 1) + 
+  geom_polygon(data = slr_data %>% filter(var == "d", SLR_cm != 35), aes(SLR_cm, param), alpha = 0.5) +
+  scale_shape_manual(values = c(4,1,3)) +
+  facet_wrap(~var, scales = "free_y")
+p_slr
+# ggsave("slr_parameters.png",p_slr, path = "~/Desktop", width = 8, height = 2)
+```
+
 
 <!-- This equation was derived from  -->
 
