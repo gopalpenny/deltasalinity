@@ -122,13 +122,15 @@ get_d_SLR <- function(SLR_m, d_probs = 0.5) {
   return(log(d_quantile))
 }
 
-#' Adjust Ganges salinity model to sea level rise
+#' Update Ganges salinity model parameter for sea level rise
 #'
-#' Adjust Ganges salinity model at Khulna to sea level rise
+#' Update Ganges salinity model parameters to account for sea level rise.
 #' @inheritParams update_ab_SLR
 #' @inheritParams get_d_SLR
 #' @param control_volume set to "channel", "gw", or "avg"
-#' @details This function takes a vector of logged parameter values as inputs
+#' @details
+#' This function allows a re-calibration of parameters to model salinity at Khulna
+#' in the GBM delta. The function takes a vector of logged parameter values as inputs
 #' \code{c(log(a), log(b), log(d), log(C_d))} and adjusts the parameters for a
 #' given sea level rise in meters, relative to 2010. Parameters \code{a} and
 #' \code{b} require specifying the control volume as \code{"channel"},

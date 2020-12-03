@@ -2,7 +2,7 @@
 % Please edit documentation in R/salinity-SLR.R
 \name{update_ganges_params_SLR}
 \alias{update_ganges_params_SLR}
-\title{Adjust Ganges salinity model to sea level rise}
+\title{Update Ganges salinity model parameter for sea level rise}
 \usage{
 update_ganges_params_SLR(v, SLR_m, control_volume, d_probs)
 }
@@ -20,10 +20,11 @@ Returns a vector of logged parameters \code{c(log(a), log(b), log(d),
 log(C_d))}, calibrated to future sea level rise (relative to 2010).
 }
 \description{
-Adjust Ganges salinity model at Khulna to sea level rise
+Update Ganges salinity model parameters to account for sea level rise.
 }
 \details{
-This function takes a vector of logged parameter values as inputs
+This function allows a re-calibration of parameters to model salinity at Khulna
+in the GBM delta. The function takes a vector of logged parameter values as inputs
 \code{c(log(a), log(b), log(d), log(C_d))} and adjusts the parameters for a
 given sea level rise in meters, relative to 2010. Parameters \code{a} and
 \code{b} require specifying the control volume as \code{"channel"},
