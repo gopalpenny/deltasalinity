@@ -12,9 +12,12 @@ adjust_ganges_SLR(v, SLR_m, control_volume, d_probs)
 \item{SLR_m}{vector of sea level rise in meters}
 
 \item{control_volume}{set to "channel" or "gw"}
+
+\item{d_probs}{Determines the quantile for d where 1 returns max(d), 0 returns min(d)}
 }
 \value{
-Returns a vector of logged parameters \code{c(log(a), log(b), log(d), log(C_d))}, calibrated to future sea level rise
+Returns a vector of logged parameters \code{c(log(a), log(b), log(d), log(C_d))}, calibrated to
+future sea level rise
 }
 \description{
 Adjust Ganges salinity model at Khulna to sea level rise
@@ -30,11 +33,12 @@ of the first two. The resulting parameters that are returned are log transformed
 # Load parameters for no sea level rise
 v <- ganges_params$param
 
-# Generate parameters for sea level rise of 0.25 and 0.5 m, including min, median, and maximum d for SLR of 0.5 m
-v_slr25 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.25, control_volume = "avg", d_probs = 0.5)
-v_slr50 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.50, control_volume = "avg", d_probs = 0.5)
-v_slr50_mind <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, control_volume = "avg", d_probs = 0)
-v_slr50_maxd <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, control_volume = "avg", d_probs = 1)
+# Generate parameters for SLR of 0.25 and 0.5 m
+# (including min, median, and maximum d for SLR of 0.5 m)
+v_slr25 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.25, "avg", d_probs = 0.5)
+v_slr50 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.50, "avg", d_probs = 0.5)
+v_slr50_mind <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 0)
+v_slr50_maxd <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 1)
 
 # Simulate salnity for each of the parameter sets
 results_df <- ganges_streamflow

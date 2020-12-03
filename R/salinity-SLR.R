@@ -90,20 +90,23 @@ update_ab_SLR <- function(v, SLR_m, control_volume) {
 #'
 #' Get parameter d for a given SLR and quantil
 #' @inheritParams update_ab_SLR
-#' @param probs Determines the quantile for d where 1 returns max(d), 0 returns min(d)
+#' @param d_probs Determines the quantile for d where 1 returns max(d), 0 returns min(d)
 #' @details
 #' Given the uncertainty of the parameter d under sea level rise, we specify this parameter
-#' within a range from min(d) to max(d). The \code{probs} parameter determines which quantile
+#' within a range from min(d) to max(d). The \code{d_probs} parameter determines which quantile
 #' to extract within this range, with 0 being the lowest, 0.5 the median, and 1 the maximum.
 #' This uniform distribution corresponds to the parameter d, not log(d) (although log(d) is returned).
-#' Note that either SLR_m or probs can be a vector of length greater than 1, but not both.
+#' Note that either SLR_m or d_probs can be a vector of length greater than 1, but not both.
 #' @return
 #' Returns the associated values as log(d).
+#' @keywords internal
 #' @examples
+#' \dontrun{
 #' get_d_SLR(SLR_m = 0.5)
-get_d_SLR <- function(SLR_m, probs = 0.5) {
-  if (length(SLR_m) > 1 & length(probs) > 1) {
-    stop("Only SLR_m or probs can have length > 1")
+#' }
+get_d_SLR <- function(SLR_m, d_probs = 0.5) {
+  if (length(SLR_m) > 1 & length(d_probs) > 1) {
+    stop("Only SLR_m or d_probs can have length > 1")
   }
   SLR_cm <- SLR_m * 100
   d_slope_slr_cm <- data.frame(d_0=0.00205548590985469,
@@ -111,7 +114,7 @@ get_d_SLR <- function(SLR_m, probs = 0.5) {
                                d_slope_min=-1.40325583903618e-05)
   d_min <- d_slope_slr_cm$d_0 + d_slope_slr_cm$d_slope_min * SLR_cm
   d_max <- d_slope_slr_cm$d_0 + d_slope_slr_cm$d_slope_max * SLR_cm
-  d_quantile <- probs * d_max + (1 - probs) * d_min
+  d_quantile <- d_probs * d_max + (1 - d_probs) * d_min
 
   return(log(d_quantile))
 }
@@ -128,17 +131,19 @@ get_d_SLR <- function(SLR_m, probs = 0.5) {
 #' of the first two. The resulting parameters that are returned are log transformed, but the average
 #' (if taken) is calculated on the untransformed parameters.
 #' @return
-#' Returns a vector of logged parameters \code{c(log(a), log(b), log(d), log(C_d))}, calibrated to future sea level rise
+#' Returns a vector of logged parameters \code{c(log(a), log(b), log(d), log(C_d))}, calibrated to
+#' future sea level rise
 #' @export
 #' @examples
 #' # Load parameters for no sea level rise
 #' v <- ganges_params$param
 #'
-#' # Generate parameters for sea level rise of 0.25 and 0.5 m, including min, median, and maximum d for SLR of 0.5 m
-#' v_slr25 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.25, control_volume = "avg", d_probs = 0.5)
-#' v_slr50 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.50, control_volume = "avg", d_probs = 0.5)
-#' v_slr50_mind <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, control_volume = "avg", d_probs = 0)
-#' v_slr50_maxd <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, control_volume = "avg", d_probs = 1)
+#' # Generate parameters for SLR of 0.25 and 0.5 m
+#' # (including min, median, and maximum d for SLR of 0.5 m)
+#' v_slr25 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.25, "avg", d_probs = 0.5)
+#' v_slr50 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.50, "avg", d_probs = 0.5)
+#' v_slr50_mind <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 0)
+#' v_slr50_maxd <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 1)
 #'
 #' # Simulate salnity for each of the parameter sets
 #' results_df <- ganges_streamflow
@@ -166,6 +171,6 @@ adjust_ganges_SLR <- function(v, SLR_m, control_volume, d_probs) {
   } else {
     v_slr <- update_ab_SLR(v, SLR_m, control_volume)
   }
-  v_slr[3] <- get_d_SLR(SLR_m, probs = d_probs)
+  v_slr[3] <- get_d_SLR(SLR_m, d_probs = d_probs)
   return(v_slr)
 }

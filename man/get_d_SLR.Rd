@@ -4,12 +4,12 @@
 \alias{get_d_SLR}
 \title{Get parameter d for SLR}
 \usage{
-get_d_SLR(SLR_m, probs = 0.5)
+get_d_SLR(SLR_m, d_probs = 0.5)
 }
 \arguments{
 \item{SLR_m}{vector of sea level rise in meters}
 
-\item{probs}{Determines the quantile for d where 1 returns max(d), 0 returns min(d)}
+\item{d_probs}{Determines the quantile for d where 1 returns max(d), 0 returns min(d)}
 }
 \value{
 Returns the associated values as log(d).
@@ -19,11 +19,14 @@ Get parameter d for a given SLR and quantil
 }
 \details{
 Given the uncertainty of the parameter d under sea level rise, we specify this parameter
-within a range from min(d) to max(d). The \code{probs} parameter determines which quantile
+within a range from min(d) to max(d). The \code{d_probs} parameter determines which quantile
 to extract within this range, with 0 being the lowest, 0.5 the median, and 1 the maximum.
 This uniform distribution corresponds to the parameter d, not log(d) (although log(d) is returned).
-Note that either SLR_m or probs can be a vector of length greater than 1, but not both.
+Note that either SLR_m or d_probs can be a vector of length greater than 1, but not both.
 }
 \examples{
+\dontrun{
 get_d_SLR(SLR_m = 0.5)
 }
+}
+\keyword{internal}
