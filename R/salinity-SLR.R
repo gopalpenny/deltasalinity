@@ -7,6 +7,9 @@
 #' @param control_volume set to "channel" or "gw"
 #' @export
 #' @keywords internal
+#' @details
+#' This function estimates the change in control volume storage relative to
+#' a baseline of 2010.
 #' @examples
 #' library(ggplot2)
 #' channel_ratios <- get_ganges_SLR_ratios(SLR_m = seq(0,1,by = 0.05), "channel")
@@ -20,10 +23,10 @@
 #'   geom_line(aes(SLR_m, R_V, color = "R_V")) + ylab("Ratio")
 get_ganges_SLR_ratios <- function(SLR_m, control_volume = "channel") {
   if (control_volume == "channel") {
-    R_V = 0.1647 * SLR_m + 1
-    R_E = 0.0694 * SLR_m + 1
+    R_V = 0.1725 * SLR_m + 1 # calibrated for SLR relative to 2010
+    R_E = 0.0718 * SLR_m + 1
   } else if (control_volume == "gw") {
-    R_V = 0.08875 * SLR_m + 1
+    R_V = 0.0919 * SLR_m + 1
     R_E = rep(1, length(SLR_m))
   } else {
     stop("must specify control_volume as \"channel\" or \"gw\", not: ",control_volume)
