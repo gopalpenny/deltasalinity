@@ -160,7 +160,7 @@ v_slr54_gw <- c(-12.607436700222,-4.25426223963173,-6.64714042324189,10.46310334
 
 # Combine calibration results
 
-```{r fig.width  = 8, fig.height = 2}
+```{r}
 slr_data <- as.data.frame(matrix(c(ganges_params$param, ganges_params$param, v_slr35_channel, v_slr35_gw, v_slr67_channel, v_slr67_gw, v_slr54_channel, v_slr54_gw), nrow = 8, byrow = FALSE)) %>% 
   setNames(c("SLR_Baseline_0", "SLR_Dasgupta2014_35","SLR_Dasgupta2014_67","SLR_Akter2016_54")) %>%
   bind_cols(log_var = rep(c("log(a)","log(b)","log(d)","log(C_d)"),2), geometry = rep(c("channel","gw"), each =4)) %>% 
@@ -169,14 +169,6 @@ slr_data <- as.data.frame(matrix(c(ganges_params$param, ganges_params$param, v_s
   mutate(SLR_cm = as.numeric(SLR_cm),
          param = exp(log_param),
          var = gsub(".*\\((.*?)\\)","\\1",log_var))
-
-p_slr <- ggplot(slr_data %>% filter(var %in% c("a","b","d"))) + 
-  geom_point(aes(SLR_cm, param, shape = source, color = geometry), size = 2, stroke = 1) + 
-  geom_polygon(data = slr_data %>% filter(var == "d", SLR_cm != 35), aes(SLR_cm, param), alpha = 0.5) +
-  scale_shape_manual(values = c(4,1,3)) +
-  facet_wrap(~var, scales = "free_y")
-p_slr
-# ggsave("slr_parameters.png",p_slr, path = "~/Desktop", width = 8, height = 2)
 ```
 
 The calibrated $d$ is very similar for the channel control volume and groundwater-connected control volume. the difference between the two is less than 1% in all cases (see below). We therefore use the minimum and maximum slope for $d$ from the combined calibrations and assume that they apply in all cases.
@@ -195,7 +187,26 @@ d_bounds <- slr_data %>% filter(var == "d") %>%
   filter(SLR_cm != 0) %>%
   mutate(d_slope = (param - d_0) / SLR_cm) %>%
   filter(d_slope == min(d_slope) | d_slope == max(d_slope)) %>%
-  select(d_0, d_slope)
+  select(d_0, d_slope) %>%
+  mutate(slope = if_else(d_slope == max(d_slope), "d_slope_max","d_slope_min")) %>%
+  pivot_wider(names_from = "slope", values_from = "d_slope")
+d_bounds
+```
+```{r fig.width  = 8, fig.height = 2.2}
+d_ribbon <- d_bounds %>% 
+  crossing(SLR_cm = seq(min(slr_data$SLR_cm), max(slr_data$SLR_cm), length.out = 2)) %>%
+  mutate(d_min = d_0 + d_slope_min * SLR_cm,
+         d_max = d_0 + d_slope_max * SLR_cm,
+         var = "d")
+p_slr <- ggplot(slr_data %>% filter(var %in% c("a","b","d"))) + 
+  geom_point(aes(SLR_cm, param, shape = source, color = geometry), size = 1, stroke = 1) + 
+  geom_ribbon(data = d_ribbon, aes(SLR_cm, ymin = d_min, ymax = d_max), alpha = 0.5) +
+  scale_shape_manual(values = c(4,1,3)) +
+  facet_wrap(~var, scales = "free_y")
+p_slr
+
+
+# ggsave("slr_parameters.png",p_slr, path = "~/Desktop", width = 8, height = 2)
 ```
 
 <!-- This equation was derived from  -->
