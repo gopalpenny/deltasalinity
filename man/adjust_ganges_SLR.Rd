@@ -17,15 +17,15 @@ adjust_ganges_SLR(v, SLR_m, control_volume, d_probs)
 }
 \value{
 Returns a vector of logged parameters \code{c(log(a), log(b), log(d), log(C_d))}, calibrated to
-future sea level rise
+future sea level rise (relative to 2010).
 }
 \description{
 Adjust Ganges salinity model at Khulna to sea level rise
 }
 \details{
 This function takes a vector of logged parameter values as inputs c(log(a), log(b), log(d), log(C_d))
-and adjusts the parameters for a given sea level rise in meters. Parameters a and b
-require specifying the control volume as "channel", "gw", or "avg", the final (avg) being the mean
+and adjusts the parameters for a given sea level rise in meters, relative to 2010. Parameters a and b
+require specifying the control volume as "channel", "gw", or "avg", the last (avg) being the mean
 of the first two. The resulting parameters that are returned are log transformed, but the average
 (if taken) is calculated on the untransformed parameters.
 }
@@ -37,16 +37,16 @@ v <- ganges_params$param
 # (including min, median, and maximum d for SLR of 0.5 m)
 v_slr25 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.25, "avg", d_probs = 0.5)
 v_slr50 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.50, "avg", d_probs = 0.5)
-v_slr50_mind <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 0)
-v_slr50_maxd <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 1)
+v_slr50_min_d <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 0)
+v_slr50_max_d <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 1)
 
 # Simulate salnity for each of the parameter sets
 results_df <- ganges_streamflow
 results_df$S_ppm_current <- sim_salin_annual(results_df, v)
 results_df$S_ppm_SLR25 <- sim_salin_annual(results_df, v_slr25)
 results_df$S_ppm_SLR50 <- sim_salin_annual(results_df, v_slr50)
-results_df$S_ppm_SLR50_mind <- sim_salin_annual(results_df, v_slr50_mind)
-results_df$S_ppm_SLR50_maxd <- sim_salin_annual(results_df, v_slr50_maxd)
+results_df$S_ppm_SLR50_min_d <- sim_salin_annual(results_df, v_slr50_min_d)
+results_df$S_ppm_SLR50_max_d <- sim_salin_annual(results_df, v_slr50_max_d)
 
 # Plot the results
 library(ggplot2)
@@ -54,8 +54,8 @@ ggplot(results_df) +
   geom_line(aes(yday, S_ppm_current, color = "current", linetype = "median d")) +
   geom_line(aes(yday, S_ppm_SLR25, color = "SLR 25 cm", linetype = "median d")) +
   geom_line(aes(yday, S_ppm_SLR50, color = "SLR 50 cm", linetype = "median d")) +
-  geom_line(aes(yday, S_ppm_SLR50_mind, color = "SLR 50 cm", linetype = "min d")) +
-  geom_line(aes(yday, S_ppm_SLR50_maxd, color = "SLR 50 cm", linetype = "max d")) +
+  geom_line(aes(yday, S_ppm_SLR50_min_d, color = "SLR 50 cm", linetype = "min d")) +
+  geom_line(aes(yday, S_ppm_SLR50_max_d, color = "SLR 50 cm", linetype = "max d")) +
   scale_linetype_manual(values = c("dotted","solid","dashed")) +
   facet_wrap(~group)
 }

@@ -14,6 +14,10 @@ get_ganges_SLR_ratios(SLR_m, control_volume = "channel")
 \description{
 Get channel volume ratios under sea level rise
 }
+\details{
+This function estimates the change in control volume storage relative to
+a baseline of 2010.
+}
 \examples{
 library(ggplot2)
 channel_ratios <- get_ganges_SLR_ratios(SLR_m = seq(0,1,by = 0.05), "channel")

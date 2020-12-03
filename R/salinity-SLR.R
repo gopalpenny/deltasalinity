@@ -145,16 +145,16 @@ get_d_SLR <- function(SLR_m, d_probs = 0.5) {
 #' # (including min, median, and maximum d for SLR of 0.5 m)
 #' v_slr25 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.25, "avg", d_probs = 0.5)
 #' v_slr50 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.50, "avg", d_probs = 0.5)
-#' v_slr50_mind <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 0)
-#' v_slr50_maxd <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 1)
+#' v_slr50_min_d <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 0)
+#' v_slr50_max_d <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 1)
 #'
 #' # Simulate salnity for each of the parameter sets
 #' results_df <- ganges_streamflow
 #' results_df$S_ppm_current <- sim_salin_annual(results_df, v)
 #' results_df$S_ppm_SLR25 <- sim_salin_annual(results_df, v_slr25)
 #' results_df$S_ppm_SLR50 <- sim_salin_annual(results_df, v_slr50)
-#' results_df$S_ppm_SLR50_mind <- sim_salin_annual(results_df, v_slr50_mind)
-#' results_df$S_ppm_SLR50_maxd <- sim_salin_annual(results_df, v_slr50_maxd)
+#' results_df$S_ppm_SLR50_min_d <- sim_salin_annual(results_df, v_slr50_min_d)
+#' results_df$S_ppm_SLR50_max_d <- sim_salin_annual(results_df, v_slr50_max_d)
 #'
 #' # Plot the results
 #' library(ggplot2)
@@ -162,8 +162,8 @@ get_d_SLR <- function(SLR_m, d_probs = 0.5) {
 #'   geom_line(aes(yday, S_ppm_current, color = "current", linetype = "median d")) +
 #'   geom_line(aes(yday, S_ppm_SLR25, color = "SLR 25 cm", linetype = "median d")) +
 #'   geom_line(aes(yday, S_ppm_SLR50, color = "SLR 50 cm", linetype = "median d")) +
-#'   geom_line(aes(yday, S_ppm_SLR50_mind, color = "SLR 50 cm", linetype = "min d")) +
-#'   geom_line(aes(yday, S_ppm_SLR50_maxd, color = "SLR 50 cm", linetype = "max d")) +
+#'   geom_line(aes(yday, S_ppm_SLR50_min_d, color = "SLR 50 cm", linetype = "min d")) +
+#'   geom_line(aes(yday, S_ppm_SLR50_max_d, color = "SLR 50 cm", linetype = "max d")) +
 #'   scale_linetype_manual(values = c("dotted","solid","dashed")) +
 #'   facet_wrap(~group)
 adjust_ganges_SLR <- function(v, SLR_m, control_volume, d_probs) {

@@ -15,7 +15,7 @@ get_d_SLR(SLR_m, d_probs = 0.5)
 Returns the associated values as log(d).
 }
 \description{
-Get parameter d for a given SLR and quantil
+Get parameter d for a given SLR and percentile
 }
 \details{
 Given the uncertainty of the parameter d under sea level rise, we specify this parameter
