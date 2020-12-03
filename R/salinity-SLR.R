@@ -129,19 +129,27 @@ get_d_SLR <- function(SLR_m, probs = 0.5) {
 #' (if taken) is calculated on the untransformed parameters.
 #' @return
 #' Returns a vector of logged parameters \code{c(log(a), log(b), log(d), log(C_d))}, calibrated to future sea level rise
+#' @export
 #' @examples
+#' # Load parameters for no sea level rise
 #' v <- ganges_params$param
-#' v_slr50 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, control_volume = "avg", d_probs = 0.5)
+#'
+#' # Generate parameters for sea level rise of 0.25 and 0.5 m, including min, median, and maximum d for SLR of 0.5 m
+#' v_slr25 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.25, control_volume = "avg", d_probs = 0.5)
+#' v_slr50 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.50, control_volume = "avg", d_probs = 0.5)
 #' v_slr50_mind <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, control_volume = "avg", d_probs = 0)
 #' v_slr50_maxd <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, control_volume = "avg", d_probs = 1)
-#' v_slr25 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.25,  control_volume = "avg", d_probs = 0.5)
 #'
+#' # Simulate salnity for each of the parameter sets
 #' results_df <- ganges_streamflow
 #' results_df$S_ppm_current <- sim_salin_annual(results_df, v)
+#' results_df$S_ppm_SLR25 <- sim_salin_annual(results_df, v_slr25)
 #' results_df$S_ppm_SLR50 <- sim_salin_annual(results_df, v_slr50)
 #' results_df$S_ppm_SLR50_mind <- sim_salin_annual(results_df, v_slr50_mind)
 #' results_df$S_ppm_SLR50_maxd <- sim_salin_annual(results_df, v_slr50_maxd)
-#' results_df$S_ppm_SLR25 <- sim_salin_annual(results_df, v_slr25)
+#'
+#' # Plot the results
+#' library(ggplot2)
 #' ggplot(results_df) +
 #'   geom_line(aes(yday, S_ppm_current, color = "current", linetype = "median d")) +
 #'   geom_line(aes(yday, S_ppm_SLR25, color = "SLR 25 cm", linetype = "median d")) +
