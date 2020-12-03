@@ -23,6 +23,6 @@ v_slr54_gw <- treat_salinity_54cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>%
   calibrate_salinity_model(v_ab_gw_slr54, control = list(trace = FALSE))
 
 paste(v_slr54_channel,collapse=",")
-# v_slr54_channel <- c(-12.645827591134,-4.25586229021828,-6.64061943030275,10.4631033404715)
+# v_slr54_channel <- c(-12.6496881185107,-4.25847441165473,-6.64196860125567,10.4631033404715)
 paste(v_slr54_gw,collapse=",")
-# v_slr54_gw <-      c(-12.607436700222,-4.25426223963173,-6.64714042324189,10.4631033404715)
+# v_slr54_gw <-      c(-12.6090585920122,-4.25588413142161,-6.64803987054384,10.4631033404715)

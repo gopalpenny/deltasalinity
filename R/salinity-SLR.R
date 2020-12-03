@@ -113,8 +113,8 @@ get_d_SLR <- function(SLR_m, d_probs = 0.5) {
   }
   SLR_cm <- SLR_m * 100
   d_slope_slr_cm <- data.frame(d_0=0.00205548590985469,
-                               d_slope_max=-7.21448775822864e-06,
-                               d_slope_min=-1.40325583903618e-05)
+                               d_slope_max=-7.23558326670253e-06,
+                               d_slope_min=-1.40541641857772e-05)
   d_min <- d_slope_slr_cm$d_0 + d_slope_slr_cm$d_slope_min * SLR_cm
   d_max <- d_slope_slr_cm$d_0 + d_slope_slr_cm$d_slope_max * SLR_cm
   d_quantile <- d_probs * d_max + (1 - d_probs) * d_min
@@ -129,13 +129,13 @@ get_d_SLR <- function(SLR_m, d_probs = 0.5) {
 #' @inheritParams get_d_SLR
 #' @details
 #' This function takes a vector of logged parameter values as inputs c(log(a), log(b), log(d), log(C_d))
-#' and adjusts the parameters for a given sea level rise in meters. Parameters a and b
-#' require specifying the control volume as "channel", "gw", or "avg", the final (avg) being the mean
+#' and adjusts the parameters for a given sea level rise in meters, relative to 2010. Parameters a and b
+#' require specifying the control volume as "channel", "gw", or "avg", the last (avg) being the mean
 #' of the first two. The resulting parameters that are returned are log transformed, but the average
 #' (if taken) is calculated on the untransformed parameters.
 #' @return
 #' Returns a vector of logged parameters \code{c(log(a), log(b), log(d), log(C_d))}, calibrated to
-#' future sea level rise
+#' future sea level rise (relative to 2010).
 #' @export
 #' @examples
 #' # Load parameters for no sea level rise
