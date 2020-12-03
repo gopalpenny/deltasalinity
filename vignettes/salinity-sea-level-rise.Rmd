@@ -1,8 +1,8 @@
 ---
-title: "Salinity and sea level rise"
+title: "Calibration to sea level rise"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Salinity and sea level rise}
+  %\VignetteIndexEntry{Calibration to sea level rise}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -105,27 +105,33 @@ treat_salinity_67cm <- treaty_streamflow %>%
 # get new a and b calibration parameters
 v_ab_channel_slr35 <- update_ab_SLR(ganges_params$param, SLR_m = 0.35, "channel")
 v_ab_channel_slr67 <- update_ab_SLR(ganges_params$param, SLR_m = 0.67, "channel")
+v_ab_gw_slr35 <- update_ab_SLR(ganges_params$param, SLR_m = 0.35, "gw")
+v_ab_gw_slr67 <- update_ab_SLR(ganges_params$param, SLR_m = 0.67, "gw")
 ```
 
 ### Calibrate parameter d
 
 ```{r}
 # sea level rise of 35 cm
-v_slr35 <- treat_salinity_35cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
+v_slr35_channel <- treat_salinity_35cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
   calibrate_salinity_model(v_ab_channel_slr35, control = list(trace = FALSE))
+v_slr35_gw <- treat_salinity_35cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
+  calibrate_salinity_model(v_ab_gw_slr35, control = list(trace = FALSE))
 
 # sea level rise of 67 cm
-v_slr67 <- treat_salinity_67cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
+v_slr67_channel <- treat_salinity_67cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
   calibrate_salinity_model(v_ab_channel_slr67, control = list(trace = FALSE))
+v_slr67_gw <- treat_salinity_67cm %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
+  calibrate_salinity_model(v_ab_gw_slr67, control = list(trace = FALSE))
 ```
 
 ```{r}
-get_ganges_slr_params <- function(hydro_data, v, SLR_m, control_volume) {
-  v_ab_channel <- update_ab_SLR(v = v, SLR_m = SLR_m, control_volume = control_volume)
-  
-  v_slr <- hydro_data %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
-    calibrate_salinity_model(v_ab, control = list(trace = FALSE))
-}
+# get_ganges_slr_params <- function(hydro_data, v, SLR_m, control_volume) {
+#   v_ab_channel <- update_ab_SLR(v = v, SLR_m = SLR_m, control_volume = control_volume)
+#   
+#   v_slr <- hydro_data %>% rename(S_ppm = S_ppm_SLR_calibrate) %>% 
+#     calibrate_salinity_model(v_ab, control = list(trace = FALSE))
+# }
 ```
 
 
@@ -148,15 +154,16 @@ They simulate two scenarios including 2011 and 2092:
 The calibration is done in a separate file with 2011 streamflow to achieve the results below.
 
 ```{r}
-v_slr54 <- c(-12.645827591134,-4.25586229021828,-6.64061943030275,10.4631033404715)
+v_slr54_channel <- c(-12.645827591134,-4.25586229021828,-6.64061943030275,10.4631033404715)
+v_slr54_gw <- c(-12.607436700222,-4.25426223963173,-6.64714042324189,10.4631033404715)
 ```
 
 # Combine calibration results
 
 ```{r fig.width  = 8, fig.height = 2}
-slr_data <- as.data.frame(matrix(c(ganges_params$param, v_slr35, v_slr67, v_slr54),nrow = 4, byrow = FALSE)) %>% 
+slr_data <- as.data.frame(matrix(c(ganges_params$param, ganges_params$param, v_slr35_channel, v_slr35_gw, v_slr67_channel, v_slr67_gw, v_slr54_channel, v_slr54_gw), nrow = 8, byrow = FALSE)) %>% 
   setNames(c("SLR_Baseline_0", "SLR_Dasgupta2014_35","SLR_Dasgupta2014_67","SLR_Akter2016_54")) %>%
-  bind_cols(log_var = c("log(a)","log(b)","log(d)","log(C_d)")) %>% 
+  bind_cols(log_var = rep(c("log(a)","log(b)","log(d)","log(C_d)"),2), geometry = rep(c("channel","gw"), each =4)) %>% 
   pivot_longer(starts_with("SLR_"),names_to = "source_slr", names_prefix = "SLR_", values_to = "log_param") %>%
   separate(source_slr,into = c("source","SLR_cm"), sep="_") %>%
   mutate(SLR_cm = as.numeric(SLR_cm),
@@ -164,7 +171,7 @@ slr_data <- as.data.frame(matrix(c(ganges_params$param, v_slr35, v_slr67, v_slr5
          var = gsub(".*\\((.*?)\\)","\\1",log_var))
 
 p_slr <- ggplot(slr_data %>% filter(var %in% c("a","b","d"))) + 
-  geom_point(aes(SLR_cm, param, color = source, shape = source), size = 2, stroke = 1) + 
+  geom_point(aes(SLR_cm, param, shape = source, color = geometry), size = 2, stroke = 1) + 
   geom_polygon(data = slr_data %>% filter(var == "d", SLR_cm != 35), aes(SLR_cm, param), alpha = 0.5) +
   scale_shape_manual(values = c(4,1,3)) +
   facet_wrap(~var, scales = "free_y")
@@ -172,6 +179,24 @@ p_slr
 # ggsave("slr_parameters.png",p_slr, path = "~/Desktop", width = 8, height = 2)
 ```
 
+The calibrated $d$ is very similar for the channel control volume and groundwater-connected control volume. the difference between the two is less than 1% in all cases (see below). We therefore use the minimum and maximum slope for $d$ from the combined calibrations and assume that they apply in all cases.
+
+```{r}
+slr_data %>% filter(var == "d") %>%
+  mutate(d_0 = param[SLR_cm == 0][1]) %>% select(-log_param) %>%
+  filter(SLR_cm != 0) %>% pivot_wider(names_from = c("geometry","var"), values_from = "param") %>%
+  mutate(pct_diff = (gw_d - channel_d) / channel_d) %>%
+  select(SLR_cm, `d, % diff between gw and channel` = pct_diff)
+```
+
+```{r}
+d_bounds <- slr_data %>% filter(var == "d") %>%
+  mutate(d_0 = param[SLR_cm == 0][1]) %>% select(-log_param) %>%
+  filter(SLR_cm != 0) %>%
+  mutate(d_slope = (param - d_0) / SLR_cm) %>%
+  filter(d_slope == min(d_slope) | d_slope == max(d_slope)) %>%
+  select(d_0, d_slope)
+```
 
 <!-- This equation was derived from  -->
 
