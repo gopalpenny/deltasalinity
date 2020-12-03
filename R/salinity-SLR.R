@@ -88,7 +88,7 @@ update_ab_SLR <- function(v, SLR_m, control_volume) {
 
 #' Get parameter d for SLR
 #'
-#' Get parameter d for a given SLR and quantil
+#' Get parameter d for a given SLR and percentile
 #' @inheritParams update_ab_SLR
 #' @param d_probs Determines the quantile for d where 1 returns max(d), 0 returns min(d)
 #' @details
