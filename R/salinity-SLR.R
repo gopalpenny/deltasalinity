@@ -93,7 +93,7 @@ update_ab_SLR <- function(v, SLR_m, control_volume) {
 #'
 #' Get parameter d for a given SLR and percentile
 #' @inheritParams update_ab_SLR
-#' @param d_probs Determines the quantile for d where 1 returns max(d), 0 returns min(d)
+#' @param d_probs Determines the quantile for d, where 1 returns max(d), 0 returns min(d)
 #' @details
 #' Given the uncertainty of the parameter d under sea level rise, we specify this parameter
 #' within a range from min(d) to max(d). The \code{d_probs} parameter determines which quantile
@@ -127,15 +127,16 @@ get_d_SLR <- function(SLR_m, d_probs = 0.5) {
 #' Adjust Ganges salinity model at Khulna to sea level rise
 #' @inheritParams update_ab_SLR
 #' @inheritParams get_d_SLR
-#' @details
-#' This function takes a vector of logged parameter values as inputs c(log(a), log(b), log(d), log(C_d))
-#' and adjusts the parameters for a given sea level rise in meters, relative to 2010. Parameters a and b
-#' require specifying the control volume as "channel", "gw", or "avg", the last (avg) being the mean
-#' of the first two. The resulting parameters that are returned are log transformed, but the average
-#' (if taken) is calculated on the untransformed parameters.
-#' @return
-#' Returns a vector of logged parameters \code{c(log(a), log(b), log(d), log(C_d))}, calibrated to
-#' future sea level rise (relative to 2010).
+#' @param control_volume set to "channel", "gw", or "avg"
+#' @details This function takes a vector of logged parameter values as inputs
+#' \code{c(log(a), log(b), log(d), log(C_d))} and adjusts the parameters for a
+#' given sea level rise in meters, relative to 2010. Parameters \code{a} and
+#' \code{b} require specifying the control volume as \code{"channel"},
+#' \code{"gw"}, or \code{"avg"}, the last (avg) being the mean of the first two.
+#' The resulting parameters that are returned are log transformed, but the
+#' average (if taken) is calculated on the untransformed parameters.
+#' @return Returns a vector of logged parameters \code{c(log(a), log(b), log(d),
+#' log(C_d))}, calibrated to future sea level rise (relative to 2010).
 #' @export
 #' @examples
 #' # Load parameters for no sea level rise
@@ -143,10 +144,10 @@ get_d_SLR <- function(SLR_m, d_probs = 0.5) {
 #'
 #' # Generate parameters for SLR of 0.25 and 0.5 m
 #' # (including min, median, and maximum d for SLR of 0.5 m)
-#' v_slr25 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.25, "avg", d_probs = 0.5)
-#' v_slr50 <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.50, "avg", d_probs = 0.5)
-#' v_slr50_min_d <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 0)
-#' v_slr50_max_d <- adjust_ganges_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 1)
+#' v_slr25 <- update_ganges_params_SLR(ganges_params$param, SLR_m = 0.25, "avg", d_probs = 0.5)
+#' v_slr50 <- update_ganges_params_SLR(ganges_params$param, SLR_m = 0.50, "avg", d_probs = 0.5)
+#' v_slr50_min_d <- update_ganges_params_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 0)
+#' v_slr50_max_d <- update_ganges_params_SLR(ganges_params$param, SLR_m = 0.5, "avg", d_probs = 1)
 #'
 #' # Simulate salnity for each of the parameter sets
 #' results_df <- ganges_streamflow
@@ -166,7 +167,7 @@ get_d_SLR <- function(SLR_m, d_probs = 0.5) {
 #'   geom_line(aes(yday, S_ppm_SLR50_max_d, color = "SLR 50 cm", linetype = "max d")) +
 #'   scale_linetype_manual(values = c("dotted","solid","dashed")) +
 #'   facet_wrap(~group)
-adjust_ganges_SLR <- function(v, SLR_m, control_volume, d_probs) {
+update_ganges_params_SLR <- function(v, SLR_m, control_volume, d_probs) {
   if (control_volume == "avg") {
     v_ab_channel <- update_ab_SLR(v, SLR_m, "channel")
     v_ab_gw <- update_ab_SLR(v, SLR_m, "gw")

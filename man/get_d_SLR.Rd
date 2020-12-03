@@ -9,7 +9,7 @@ get_d_SLR(SLR_m, d_probs = 0.5)
 \arguments{
 \item{SLR_m}{vector of sea level rise in meters}
 
-\item{d_probs}{Determines the quantile for d where 1 returns max(d), 0 returns min(d)}
+\item{d_probs}{Determines the quantile for d, where 1 returns max(d), 0 returns min(d)}
 }
 \value{
 Returns the associated values as log(d).
